@@ -13,15 +13,19 @@ import PySimpleGUI as sg
 import srt
 import csv
 
-def retrieve(url, cookies):
-    """ Retrieve a URL, create error message if it fails """
-    r = requests.get(url, cookies)
-    if r.status_code == 200:
-        return r.content
-    else:
-        sg.popup_error(f"{url}\n\nhas returned error code {r.status_code}",
-                       title = "Error!")
-        return None
+class Session(requests.Session):
+    def __init__(self, cookies):
+        super().__init__()
+        _ = self.get("https://missevan.com", cookies = cookies)
+        
+    def retrieve(self, url):
+        r = self.get(url)
+        if r.status_code == 200:
+            return r.content
+        else:
+            sg.popup_error(f"{url}\n\nhas returned error code {r.status_code}",
+                           title = "Error!")
+            return None
 
 def download(url, token, directory):
     """ Download all available files from site and save """
@@ -34,14 +38,15 @@ def download(url, token, directory):
     
     sound_id = matchobj[0]
     
-    # Set cookies
+    # Set cookies and create session
     cookies = {}
     if token:
         cookies["token"] = token
+    session = Session(cookies)
     
     # Get info
     info_url = f"https://www.missevan.com/sound/getsound?soundid={sound_id}"
-    info = retrieve(info_url, cookies)
+    info = session.retrieve(info_url)
     
     info = json.loads(info).get("info", {}).get("sound")
     title = info.get("soundstr")
@@ -60,24 +65,27 @@ def download(url, token, directory):
     
     # Save sound
     if sound_url:
-        sound = retrieve(sound_url, cookies)
+        sound = session.retrieve(sound_url)
         if sound:
+            print("Sound file found")
             filepath = os.path.join(new_dir, "sound.m4a")
             with open(filepath, "wb") as file:
                 file.write(sound)
     
     # Save video
     if video_url:
-        video = retrieve(video_url, cookies)
+        video = session.retrieve(video_url)
         if video:
+            print("Video file found")
             filepath = os.path.join(new_dir, "video.mp4")
             with open(filepath, "wb") as file:
                 file.write(video)
     
     # Save subtitles
     if subtitle_url:
-        subs = retrieve(subtitle_url, cookies)
+        subs = session.retrieve(subtitle_url)
         if subs:
+            print("Subtitles found")
             subs = json.loads(subs)
             
             # Dump raw subs
@@ -113,15 +121,15 @@ def download(url, token, directory):
     # Get images
     imgurl = f"https://www.missevan.com/sound/getimages?soundid={sound_id}"
     if imgurl:
-        r_img = requests.get(imgurl, cookies = cookies)
-        if r_img.status_code == 200:
+        r_img = session.retrieve(imgurl)
+        if r_img:
             # Get image info file and sort according to timestamp
-            info_img = json.loads(r_img.content).get("successVal", {}).get("images", [])
+            info_img = json.loads(r_img).get("successVal", {}).get("images", [])
             info_img = sorted(info_img, key=lambda x: x[1])
             
             # Download images and save
             for num, img in enumerate(info_img):
-                image_content = retrieve(img[0], cookies = cookies)
+                image_content = session.retrieve(img[0])
                 file_ending = img[0].split(".")[-1]
                 filename = f"img_{num:03}" + "." + file_ending
                 img[0] = filename

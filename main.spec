@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='missevan-downloader_v0-9-0',
+    name='missevan-downloader_v0-9-1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
