@@ -67,7 +67,6 @@ def download(url, token, directory):
     if sound_url:
         sound = session.retrieve(sound_url)
         if sound:
-            print("Sound file found")
             filepath = os.path.join(new_dir, "sound.m4a")
             with open(filepath, "wb") as file:
                 file.write(sound)
@@ -76,7 +75,6 @@ def download(url, token, directory):
     if video_url:
         video = session.retrieve(video_url)
         if video:
-            print("Video file found")
             filepath = os.path.join(new_dir, "video.mp4")
             with open(filepath, "wb") as file:
                 file.write(video)
@@ -85,7 +83,6 @@ def download(url, token, directory):
     if subtitle_url:
         subs = session.retrieve(subtitle_url)
         if subs:
-            print("Subtitles found")
             subs = json.loads(subs)
             
             # Dump raw subs
