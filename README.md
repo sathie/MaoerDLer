@@ -1,4 +1,8 @@
-# M*** Downloader
+# M-Site Downloader
 
-Downloads files from the M-site
+Python app that downloads files from the M-site.
 
+Requirements:
+- Python 3
+- PySimpleGui
+- some other stuff

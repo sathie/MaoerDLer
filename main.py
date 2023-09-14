@@ -5,8 +5,11 @@ Created on Wed Sep 13 10:35:17 2023
 @author: thiesesh
 """
 
+import os
 import PySimpleGUI as sg
 import download
+
+application_path = os.path.dirname(os.path.abspath(__file__))
 
 # Layout definition
 sg.theme('LightPurple')
@@ -40,7 +43,7 @@ There should be an entry called "token".
 The value of this entry is a long string of numbers and letters. This is your login token."""
     
     popup_layout = [
-        [sg.Image("img/help.png")],
+        [sg.Image(os.path.join(application_path, "img/help.png"))],
         [sg.Text(help_text)],
         [sg.Push(), sg.OK(), sg.Push()]
     ]
